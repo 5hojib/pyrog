@@ -215,10 +215,6 @@ class Client(Methods):
         link_preview_options (:obj:`~pyrogram.types.LinkPreviewOptions`, *optional*):
             Set the global link preview options for the client. By default, no link preview option is set.
 
-        fetch_replies (``int``, *optional*):
-            Set the number of replies to be fetched when parsing the :obj:`~pyrogram.types.Message` object. Defaults to 1.
-            :doc:`More on Errors <../../api/errors/index>`
-
     """
 
     APP_VERSION = f"Pyrogram {__version__}"
@@ -281,7 +277,6 @@ class Client(Methods):
         no_joined_notifications: bool = False,
         client_platform: enums.ClientPlatform = enums.ClientPlatform.OTHER,
         link_preview_options: "types.LinkPreviewOptions" = None,
-        fetch_replies: int = 1,
         _un_docu_gnihts: List = []
     ):
         super().__init__()
@@ -320,7 +315,6 @@ class Client(Methods):
         self.client_platform = client_platform
         self._un_docu_gnihts = _un_docu_gnihts
         self.link_preview_options = link_preview_options
-        self.fetch_replies = fetch_replies
 
         self.executor = ThreadPoolExecutor(self.workers, thread_name_prefix="Handler")
 
@@ -629,7 +623,7 @@ class Client(Methods):
                 pts = getattr(update, "pts", None)
                 pts_count = getattr(update, "pts_count", None)
 
-                if pts and not self.skip_updates:
+                if pts:
                     await self.storage.update_state(
                         (
                             utils.get_channel_id(channel_id) if channel_id else 0,
@@ -670,16 +664,15 @@ class Client(Methods):
 
                 self.dispatcher.updates_queue.put_nowait((update, users, chats))
         elif isinstance(updates, (raw.types.UpdateShortMessage, raw.types.UpdateShortChatMessage)):
-            if not self.skip_updates:
-                await self.storage.update_state(
-                    (
-                        0,
-                        updates.pts,
-                        None,
-                        updates.date,
-                        None
-                    )
+            await self.storage.update_state(
+                (
+                    0,
+                    updates.pts,
+                    None,
+                    updates.date,
+                    None
                 )
+            )
 
             diff = await self.invoke(
                 raw.functions.updates.GetDifference(

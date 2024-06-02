@@ -146,9 +146,6 @@ class Message(Object, Update):
         link_preview_options (:obj:`~pyrogram.types.LinkPreviewOptions`, *optional*):
             Options used for link preview generation for the message, if it is a text message and link preview options were changed
 
-        effect_id (``str``, *optional*):
-            Unique identifier of the message effect added to the message. Use :meth:`~pyrogram.Client.get_message_effects` to get the list of available message effect ids.
-
         animation (:obj:`~pyrogram.types.Animation`, *optional*):
             Message is an animation, information about the animation.
 
@@ -185,9 +182,6 @@ class Message(Object, Update):
         caption_entities (List of :obj:`~pyrogram.types.MessageEntity`, *optional*):
             For messages with a caption, special entities like usernames, URLs, bot commands, etc. that appear
             in the caption.
-
-        show_caption_above_media (``bool``, *optional*):
-            True, if the caption must be shown above the message media.
 
         has_media_spoiler (``bool``, *optional*):
             True, if the message media is covered by a spoiler animation.
@@ -425,7 +419,6 @@ class Message(Object, Update):
         text: Str = None,
         entities: List["types.MessageEntity"] = None,
         link_preview_options: "types.LinkPreviewOptions" = None,
-        effect_id: str = None,
         animation: "types.Animation" = None,
         audio: "types.Audio" = None,
         document: "types.Document" = None,
@@ -437,7 +430,6 @@ class Message(Object, Update):
         voice: "types.Voice" = None,
         caption: Str = None,
         caption_entities: List["types.MessageEntity"] = None,
-        show_caption_above_media: bool = None,
         has_media_spoiler: bool = None,
         contact: "types.Contact" = None,
         dice: "types.Dice" = None,
@@ -537,7 +529,6 @@ class Message(Object, Update):
         self.text = text
         self.entities = entities
         self.caption_entities = caption_entities
-        self.show_caption_above_media = show_caption_above_media
         self.audio = audio
         self.document = document
         self.photo = photo
@@ -583,7 +574,6 @@ class Message(Object, Update):
         self.chat_ttl_period = chat_ttl_period
         self.chat_ttl_setting_from = chat_ttl_setting_from
         self.link_preview_options = link_preview_options
-        self.effect_id = effect_id
         self.external_reply = external_reply
         self.is_topic_message = is_topic_message
         self.sender_boost_count = sender_boost_count
@@ -1125,7 +1115,6 @@ class Message(Object, Update):
                 else:
                     media = None
 
-            show_caption_above_media = getattr(message, "invert_media", False)
             if (
                 not link_preview_options and
                 web_page_url
@@ -1134,7 +1123,7 @@ class Message(Object, Update):
                     client,
                     None,
                     web_page_url,
-                    show_caption_above_media
+                    getattr(message, "invert_media", False)
                 )
 
             reply_markup = message.reply_markup
@@ -1218,9 +1207,7 @@ class Message(Object, Update):
                 reply_markup=reply_markup,
                 reactions=reactions,
                 client=client,
-                link_preview_options=link_preview_options,
-                effect_id=getattr(message, "effect", None),
-                show_caption_above_media=show_caption_above_media
+                link_preview_options=link_preview_options
             )
 
             parsed_message.external_reply = await types.ExternalReplyInfo._parse(
@@ -1248,13 +1235,12 @@ class Message(Object, Update):
                         parsed_message.message_thread_id = message.reply_to.reply_to_top_id
                     else:
                         parsed_message.message_thread_id = message.reply_to.reply_to_msg_id
-                if getattr(message.reply_to, "quote", False):
-                    parsed_message.quote = types.TextQuote._parse(
-                        client,
-                        chats,
-                        users,
-                        message.reply_to
-                    )
+                parsed_message.quote = types.TextQuote._parse(
+                    client,
+                    chats,
+                    users,
+                    message.reply_to
+                )
 
             if isinstance(message.reply_to, raw.types.MessageReplyStoryHeader):
                 parsed_message.reply_to_story = await types.Story._parse(client, chats, None, message.reply_to)
@@ -1283,8 +1269,7 @@ class Message(Object, Update):
                 raw_reply_to_message,
                 users,
                 chats,
-                business_connection_id=business_connection_id,
-                replies=0
+                business_connection_id=business_connection_id
             )
 
         if not parsed_message.poll:  # Do not cache poll messages
@@ -1343,7 +1328,6 @@ class Message(Object, Update):
         link_preview_options: "types.LinkPreviewOptions" = None,
         disable_notification: bool = None,
         protect_content: bool = None,
-        message_effect_id: int = None,
         reply_parameters: "types.ReplyParameters" = None,
         reply_markup: Union[
             "types.InlineKeyboardMarkup",
@@ -1402,9 +1386,6 @@ class Message(Object, Update):
             protect_content (``bool``, *optional*):
                 Protects the contents of the sent message from forwarding and saving.
 
-            message_effect_id (``int`` ``64-bit``, *optional*):
-                Unique identifier of the message effect to be added to the message; for private chats only.
-
             reply_parameters (:obj:`~pyrogram.types.ReplyParameters`, *optional*):
                 Description of the message to reply to
 
@@ -1439,7 +1420,6 @@ class Message(Object, Update):
             protect_content=protect_content,
             message_thread_id=self.message_thread_id,
             business_connection_id=self.business_connection_id,
-            message_effect_id=message_effect_id,
             reply_parameters=reply_parameters,
             reply_markup=reply_markup,
             schedule_date=schedule_date,
@@ -1456,7 +1436,6 @@ class Message(Object, Update):
         caption: str = "",
         parse_mode: Optional["enums.ParseMode"] = None,
         caption_entities: List["types.MessageEntity"] = None,
-        show_caption_above_media: bool = None,
         unsave: bool = False,
         has_spoiler: bool = None,
         duration: int = 0,
@@ -1465,7 +1444,6 @@ class Message(Object, Update):
         thumb: str = None,
         file_name: str = None,
         disable_notification: bool = None,
-        message_effect_id: int = None,
         reply_parameters: "types.ReplyParameters" = None,
         schedule_date: datetime = None,
         protect_content: bool = None,
@@ -1518,9 +1496,6 @@ class Message(Object, Update):
             caption_entities (List of :obj:`~pyrogram.types.MessageEntity`):
                 List of special entities that appear in the caption, which can be specified instead of *parse_mode*.
 
-            show_caption_above_media (``bool``, *optional*):
-                Pass True, if the caption must be shown above the message media.
-
             unsave (``bool``, *optional*):
                 By default, the server will save into your own collection any new animation you send.
                 Pass True to automatically unsave the sent animation. Defaults to False.
@@ -1550,9 +1525,6 @@ class Message(Object, Update):
             disable_notification (``bool``, *optional*):
                 Sends the message silently.
                 Users will receive a notification with no sound.
-
-            message_effect_id (``int`` ``64-bit``, *optional*):
-                Unique identifier of the message effect to be added to the message; for private chats only.
 
             reply_parameters (:obj:`~pyrogram.types.ReplyParameters`, *optional*):
                 Description of the message to reply to
@@ -1616,7 +1588,6 @@ class Message(Object, Update):
             caption=caption,
             parse_mode=parse_mode,
             caption_entities=caption_entities,
-            show_caption_above_media=show_caption_above_media,
             unsave=unsave,
             has_spoiler=has_spoiler,
             duration=duration,
@@ -1625,7 +1596,6 @@ class Message(Object, Update):
             thumb=thumb,
             file_name=file_name,
             disable_notification=disable_notification,
-            message_effect_id=message_effect_id,
             reply_parameters=reply_parameters,
             message_thread_id=self.message_thread_id,
             business_connection_id=self.business_connection_id,
@@ -1651,7 +1621,6 @@ class Message(Object, Update):
         thumb: str = None,
         file_name: str = None,
         disable_notification: bool = None,
-        message_effect_id: int = None,
         reply_parameters: "types.ReplyParameters" = None,
         schedule_date: datetime = None,
         protect_content: bool = None,
@@ -1726,9 +1695,6 @@ class Message(Object, Update):
                 Sends the message silently.
                 Users will receive a notification with no sound.
 
-            message_effect_id (``int`` ``64-bit``, *optional*):
-                Unique identifier of the message effect to be added to the message; for private chats only.
-
             reply_parameters (:obj:`~pyrogram.types.ReplyParameters`, *optional*):
                 Description of the message to reply to
 
@@ -1792,7 +1758,6 @@ class Message(Object, Update):
             thumb=thumb,
             file_name=file_name,
             disable_notification=disable_notification,
-            message_effect_id=message_effect_id,
             reply_parameters=reply_parameters,
             message_thread_id=self.message_thread_id,
             business_connection_id=self.business_connection_id,
@@ -1811,9 +1776,7 @@ class Message(Object, Update):
         caption: str = "",
         parse_mode: Optional["enums.ParseMode"] = None,
         caption_entities: List["types.MessageEntity"] = None,
-        show_caption_above_media: bool = None,
         disable_notification: bool = None,
-        message_effect_id: int = None,
         reply_parameters: "types.ReplyParameters" = None,
         schedule_date: datetime = None,
         reply_markup: Union[
@@ -1860,15 +1823,9 @@ class Message(Object, Update):
             caption_entities (List of :obj:`~pyrogram.types.MessageEntity`):
                 List of special entities that appear in the caption, which can be specified instead of *parse_mode*.
 
-            show_caption_above_media (``bool``, *optional*):
-                Pass True, if the caption must be shown above the message media. Supported only for animation, photo and video messages.
-
             disable_notification (``bool``, *optional*):
                 Sends the message silently.
                 Users will receive a notification with no sound.
-
-            message_effect_id (``int`` ``64-bit``, *optional*):
-                Unique identifier of the message effect to be added to the message; for private chats only.
 
             reply_parameters (:obj:`~pyrogram.types.ReplyParameters`, *optional*):
                 Description of the message to reply to
@@ -1900,9 +1857,7 @@ class Message(Object, Update):
             caption=caption,
             parse_mode=parse_mode,
             caption_entities=caption_entities,
-            show_caption_above_media=show_caption_above_media,
             disable_notification=disable_notification,
-            message_effect_id=message_effect_id,
             reply_parameters=reply_parameters,
             message_thread_id=self.message_thread_id,
             business_connection_id=self.business_connection_id,
@@ -1983,7 +1938,6 @@ class Message(Object, Update):
         last_name: str = "",
         vcard: str = "",
         disable_notification: bool = None,
-        message_effect_id: int = None,
         reply_parameters: "types.ReplyParameters" = None,
         schedule_date: datetime = None,
         protect_content: bool = None,
@@ -2034,9 +1988,6 @@ class Message(Object, Update):
                 Sends the message silently.
                 Users will receive a notification with no sound.
 
-            message_effect_id (``int`` ``64-bit``, *optional*):
-                Unique identifier of the message effect to be added to the message; for private chats only.
-
             reply_parameters (:obj:`~pyrogram.types.ReplyParameters`, *optional*):
                 Description of the message to reply to
 
@@ -2071,7 +2022,6 @@ class Message(Object, Update):
             last_name=last_name,
             vcard=vcard,
             disable_notification=disable_notification,
-            message_effect_id=message_effect_id,
             reply_parameters=reply_parameters,
             message_thread_id=self.message_thread_id,
             business_connection_id=self.business_connection_id,
@@ -2092,7 +2042,6 @@ class Message(Object, Update):
         file_name: str = None,
         disable_content_type_detection: bool = None,
         disable_notification: bool = None,
-        message_effect_id: int = None,
         reply_parameters: "types.ReplyParameters" = None,
         schedule_date: datetime = None,
         protect_content: bool = None,
@@ -2103,7 +2052,6 @@ class Message(Object, Update):
             "types.ForceReply"
         ] = None,
         reply_to_message_id: int = None,
-        force_document: bool = None,
         progress: Callable = None,
         progress_args: tuple = ()
     ) -> "Message":
@@ -2164,9 +2112,6 @@ class Message(Object, Update):
             disable_notification (``bool``, *optional*):
                 Sends the message silently.
                 Users will receive a notification with no sound.
-
-            message_effect_id (``int`` ``64-bit``, *optional*):
-                Unique identifier of the message effect to be added to the message; for private chats only.
 
             reply_parameters (:obj:`~pyrogram.types.ReplyParameters`, *optional*):
                 Description of the message to reply to
@@ -2229,7 +2174,6 @@ class Message(Object, Update):
             file_name=file_name,
             disable_content_type_detection=disable_content_type_detection,
             disable_notification=disable_notification,
-            message_effect_id=message_effect_id,
             reply_parameters=reply_parameters,
             message_thread_id=self.message_thread_id,
             business_connection_id=self.business_connection_id,
@@ -2237,7 +2181,6 @@ class Message(Object, Update):
             protect_content=protect_content,
             reply_markup=reply_markup,
             reply_to_message_id=reply_to_message_id,
-            force_document=force_document,
             progress=progress,
             progress_args=progress_args
         )
@@ -2248,7 +2191,6 @@ class Message(Object, Update):
         quote: bool = None,
         disable_notification: bool = None,
         protect_content: bool = None,
-        message_effect_id: int = None,
         reply_parameters: "types.ReplyParameters" = None,
         reply_markup: Union[
             "types.InlineKeyboardMarkup",
@@ -2287,9 +2229,6 @@ class Message(Object, Update):
                 Sends the message silently.
                 Users will receive a notification with no sound.
 
-            message_effect_id (``int`` ``64-bit``, *optional*):
-                Unique identifier of the message effect to be added to the message; for private chats only.
-
             reply_parameters (:obj:`~pyrogram.types.ReplyParameters`, *optional*):
                 Description of the message to reply to
 
@@ -2318,7 +2257,6 @@ class Message(Object, Update):
             chat_id=self.chat.id,
             game_short_name=game_short_name,
             disable_notification=disable_notification,
-            message_effect_id=message_effect_id,
             reply_parameters=reply_parameters,
             protect_content=protect_content,
             message_thread_id=self.message_thread_id,
@@ -2401,7 +2339,6 @@ class Message(Object, Update):
         longitude: float,
         quote: bool = None,
         disable_notification: bool = None,
-        message_effect_id: int = None,
         reply_parameters: "types.ReplyParameters" = None,
         schedule_date: datetime = None,
         protect_content: bool = None,
@@ -2446,9 +2383,6 @@ class Message(Object, Update):
                 Sends the message silently.
                 Users will receive a notification with no sound.
 
-            message_effect_id (``int`` ``64-bit``, *optional*):
-                Unique identifier of the message effect to be added to the message; for private chats only.
-
             reply_parameters (:obj:`~pyrogram.types.ReplyParameters`, *optional*):
                 Description of the message to reply to
 
@@ -2481,7 +2415,6 @@ class Message(Object, Update):
             latitude=latitude,
             longitude=longitude,
             disable_notification=disable_notification,
-            message_effect_id=message_effect_id,
             reply_parameters=reply_parameters,
             message_thread_id=self.message_thread_id,
             business_connection_id=self.business_connection_id,
@@ -2496,7 +2429,6 @@ class Message(Object, Update):
         media: List[Union["types.InputMediaPhoto", "types.InputMediaVideo"]],
         quote: bool = None,
         disable_notification: bool = None,
-        message_effect_id: int = None,
         reply_parameters: "types.ReplyParameters" = None,
         schedule_date: datetime = None,
         protect_content: bool = None,
@@ -2533,9 +2465,6 @@ class Message(Object, Update):
                 Sends the message silently.
                 Users will receive a notification with no sound.
 
-            message_effect_id (``int`` ``64-bit``, *optional*):
-                Unique identifier of the message effect to be added to the message; for private chats only.
-
             reply_parameters (:obj:`~pyrogram.types.ReplyParameters`, *optional*):
                 Description of the message to reply to
 
@@ -2564,7 +2493,6 @@ class Message(Object, Update):
             chat_id=self.chat.id,
             media=media,
             disable_notification=disable_notification,
-            message_effect_id=message_effect_id,
             reply_parameters=reply_parameters,
             message_thread_id=self.message_thread_id,
             business_connection_id=self.business_connection_id,
@@ -2580,11 +2508,9 @@ class Message(Object, Update):
         caption: str = "",
         parse_mode: Optional["enums.ParseMode"] = None,
         caption_entities: List["types.MessageEntity"] = None,
-        show_caption_above_media: bool = None,
         has_spoiler: bool = None,
         ttl_seconds: int = None,
         disable_notification: bool = None,
-        message_effect_id: int = None,
         reply_parameters: "types.ReplyParameters" = None,
         schedule_date: datetime = None,
         protect_content: bool = None,
@@ -2637,9 +2563,6 @@ class Message(Object, Update):
             caption_entities (List of :obj:`~pyrogram.types.MessageEntity`):
                 List of special entities that appear in the caption, which can be specified instead of *parse_mode*.
 
-            show_caption_above_media (``bool``, *optional*):
-                Pass True, if the caption must be shown above the message media.
-
             has_spoiler (``bool``, *optional*):
                 Pass True if the photo needs to be covered with a spoiler animation.
 
@@ -2651,9 +2574,6 @@ class Message(Object, Update):
             disable_notification (``bool``, *optional*):
                 Sends the message silently.
                 Users will receive a notification with no sound.
-
-            message_effect_id (``int`` ``64-bit``, *optional*):
-                Unique identifier of the message effect to be added to the message; for private chats only.
 
             reply_parameters (:obj:`~pyrogram.types.ReplyParameters`, *optional*):
                 Description of the message to reply to
@@ -2715,11 +2635,9 @@ class Message(Object, Update):
             caption=caption,
             parse_mode=parse_mode,
             caption_entities=caption_entities,
-            show_caption_above_media=show_caption_above_media,
             has_spoiler=has_spoiler,
             ttl_seconds=ttl_seconds,
             disable_notification=disable_notification,
-            message_effect_id=message_effect_id,
             reply_parameters=reply_parameters,
             message_thread_id=self.message_thread_id,
             business_connection_id=self.business_connection_id,
@@ -2736,8 +2654,6 @@ class Message(Object, Update):
         self,
         question: str,
         options: List[str],
-        question_parse_mode: "enums.ParseMode" = None,
-        question_entities: List["types.MessageEntity"] = None,
         is_anonymous: bool = True,
         type: "enums.PollType" = enums.PollType.REGULAR,
         allows_multiple_answers: bool = None,
@@ -2751,7 +2667,6 @@ class Message(Object, Update):
         quote: bool = None,
         disable_notification: bool = None,
         protect_content: bool = None,
-        message_effect_id: int = None,
         reply_parameters: "types.ReplyParameters" = None,
         schedule_date: datetime = None,
         reply_markup: Union[
@@ -2785,13 +2700,6 @@ class Message(Object, Update):
 
             options (List of ``str``):
                 List of answer options, 2-10 strings 1-100 characters each.
-
-            question_parse_mode (:obj:`~pyrogram.enums.ParseMode`, *optional*):
-                By default, texts are parsed using both Markdown and HTML styles.
-                You can combine both syntaxes together.
-
-            question_entities (List of :obj:`~pyrogram.types.MessageEntity`):
-                List of special entities that appear in the poll question, which can be specified instead of *question_parse_mode*.
 
             is_anonymous (``bool``, *optional*):
                 True, if the poll needs to be anonymous.
@@ -2845,9 +2753,6 @@ class Message(Object, Update):
             protect_content (``bool``, *optional*):
                 Protects the contents of the sent message from forwarding and saving.
 
-            message_effect_id (``int`` ``64-bit``, *optional*):
-                Unique identifier of the message effect to be added to the message; for private chats only.
-
             reply_parameters (:obj:`~pyrogram.types.ReplyParameters`, *optional*):
                 Description of the message to reply to
 
@@ -2888,7 +2793,6 @@ class Message(Object, Update):
             is_closed=is_closed,
             disable_notification=disable_notification,
             protect_content=protect_content,
-            message_effect_id=message_effect_id,
             reply_parameters=reply_parameters,
             message_thread_id=self.message_thread_id,
             business_connection_id=self.business_connection_id,
@@ -2903,7 +2807,6 @@ class Message(Object, Update):
         quote: bool = None,
         disable_notification: bool = None,
         protect_content: bool = None,
-        message_effect_id: int = None,
         reply_parameters: "types.ReplyParameters" = None,
         reply_markup: Union[
             "types.InlineKeyboardMarkup",
@@ -2950,9 +2853,6 @@ class Message(Object, Update):
 
             protect_content (``bool``, *optional*):
                 Protects the contents of the sent message from forwarding and saving.
-
-            message_effect_id (``int`` ``64-bit``, *optional*):
-                Unique identifier of the message effect to be added to the message; for private chats only.
 
             reply_parameters (:obj:`~pyrogram.types.ReplyParameters`, *optional*):
                 Description of the message to reply to
@@ -3009,7 +2909,6 @@ class Message(Object, Update):
             protect_content=protect_content,
             message_thread_id=self.message_thread_id,
             business_connection_id=self.business_connection_id,
-            message_effect_id=message_effect_id,
             reply_parameters=reply_parameters,
             reply_markup=reply_markup,
             schedule_date=schedule_date,
@@ -3028,7 +2927,6 @@ class Message(Object, Update):
         foursquare_id: str = "",
         foursquare_type: str = "",
         disable_notification: bool = None,
-        message_effect_id: int = None,
         reply_parameters: "types.ReplyParameters" = None,
         schedule_date: datetime = None,
         protect_content: bool = None,
@@ -3094,9 +2992,6 @@ class Message(Object, Update):
             protect_content (``bool``, *optional*):
                 Protects the contents of the sent message from forwarding and saving.
 
-            message_effect_id (``int`` ``64-bit``, *optional*):
-                Unique identifier of the message effect to be added to the message; for private chats only.
-
             reply_parameters (:obj:`~pyrogram.types.ReplyParameters`, *optional*):
                 Description of the message to reply to
 
@@ -3127,7 +3022,6 @@ class Message(Object, Update):
             foursquare_id=foursquare_id,
             foursquare_type=foursquare_type,
             disable_notification=disable_notification,
-            message_effect_id=message_effect_id,
             reply_parameters=reply_parameters,
             message_thread_id=self.message_thread_id,
             business_connection_id=self.business_connection_id,
@@ -3144,7 +3038,6 @@ class Message(Object, Update):
         caption: str = "",
         parse_mode: Optional["enums.ParseMode"] = None,
         caption_entities: List["types.MessageEntity"] = None,
-        show_caption_above_media: bool = None,
         duration: int = 0,
         width: int = 0,
         height: int = 0,
@@ -3153,7 +3046,6 @@ class Message(Object, Update):
         supports_streaming: bool = True,
         disable_notification: bool = None,
         protect_content: bool = None,
-        message_effect_id: int = None,
         reply_parameters: "types.ReplyParameters" = None,
         reply_markup: Union[
             "types.InlineKeyboardMarkup",
@@ -3207,9 +3099,6 @@ class Message(Object, Update):
             caption_entities (List of :obj:`~pyrogram.types.MessageEntity`):
                 List of special entities that appear in the caption, which can be specified instead of *parse_mode*.
 
-            show_caption_above_media (``bool``, *optional*):
-                Pass True, if the caption must be shown above the message media.
-
             duration (``int``, *optional*):
                 Duration of sent video in seconds.
 
@@ -3238,9 +3127,6 @@ class Message(Object, Update):
 
             protect_content (``bool``, *optional*):
                 Protects the contents of the sent message from forwarding and saving.
-
-            message_effect_id (``int`` ``64-bit``, *optional*):
-                Unique identifier of the message effect to be added to the message; for private chats only.
 
             reply_parameters (:obj:`~pyrogram.types.ReplyParameters`, *optional*):
                 Description of the message to reply to
@@ -3308,7 +3194,6 @@ class Message(Object, Update):
             caption=caption,
             parse_mode=parse_mode,
             caption_entities=caption_entities,
-            show_caption_above_media=show_caption_above_media,
             duration=duration,
             width=width,
             height=height,
@@ -3319,7 +3204,6 @@ class Message(Object, Update):
             protect_content=protect_content,
             message_thread_id=self.message_thread_id,
             business_connection_id=self.business_connection_id,
-            message_effect_id=message_effect_id,
             reply_parameters=reply_parameters,
             reply_markup=reply_markup,
             ttl_seconds=ttl_seconds,
@@ -3340,7 +3224,6 @@ class Message(Object, Update):
         thumb: str = None,
         disable_notification: bool = None,
         protect_content: bool = None,
-        message_effect_id: int = None,
         reply_parameters: "types.ReplyParameters" = None,
         reply_markup: Union[
             "types.InlineKeyboardMarkup",
@@ -3404,9 +3287,6 @@ class Message(Object, Update):
 
             protect_content (``bool``, *optional*):
                 Protects the contents of the sent message from forwarding and saving.
-
-            message_effect_id (``int`` ``64-bit``, *optional*):
-                Unique identifier of the message effect to be added to the message; for private chats only.
 
             reply_parameters (:obj:`~pyrogram.types.ReplyParameters`, *optional*):
                 Description of the message to reply to
@@ -3484,7 +3364,6 @@ class Message(Object, Update):
             protect_content=protect_content,
             message_thread_id=self.message_thread_id,
             business_connection_id=self.business_connection_id,
-            message_effect_id=message_effect_id,
             reply_parameters=reply_parameters,
             reply_markup=reply_markup,
             caption=caption,
@@ -3508,7 +3387,6 @@ class Message(Object, Update):
         duration: int = 0,
         disable_notification: bool = None,
         protect_content: bool = None,
-        message_effect_id: int = None,
         reply_parameters: "types.ReplyParameters" = None,
         reply_markup: Union[
             "types.InlineKeyboardMarkup",
@@ -3571,9 +3449,6 @@ class Message(Object, Update):
 
             protect_content (``bool``, *optional*):
                 Protects the contents of the sent message from forwarding and saving.
-
-            message_effect_id (``int`` ``64-bit``, *optional*):
-                Unique identifier of the message effect to be added to the message; for private chats only.
 
             reply_parameters (:obj:`~pyrogram.types.ReplyParameters`, *optional*):
                 Description of the message to reply to
@@ -3645,7 +3520,6 @@ class Message(Object, Update):
             protect_content=protect_content,
             message_thread_id=self.message_thread_id,
             business_connection_id=self.business_connection_id,
-            message_effect_id=message_effect_id,
             reply_parameters=reply_parameters,
             reply_markup=reply_markup,
             schedule_date=schedule_date,
@@ -3997,7 +3871,6 @@ class Message(Object, Update):
         caption: str = None,
         parse_mode: Optional["enums.ParseMode"] = None,
         caption_entities: List["types.MessageEntity"] = None,
-        show_caption_above_media: bool = None,
         disable_notification: bool = None,
         reply_parameters: "types.ReplyParameters" = None,
         reply_markup: Union[
@@ -4046,9 +3919,6 @@ class Message(Object, Update):
 
             caption_entities (List of :obj:`~pyrogram.types.MessageEntity`):
                 List of special entities that appear in the new caption, which can be specified instead of *parse_mode*.
-
-            show_caption_above_media (``bool``, *optional*):
-                Pass True, if the caption must be shown above the message media. Ignored if a new caption isn't specified.
 
             disable_notification (``bool``, *optional*):
                 Sends the message silently.
@@ -4100,7 +3970,6 @@ class Message(Object, Update):
                 link_preview_options=self.link_preview_options,
                 disable_notification=disable_notification,
                 protect_content=protect_content or self.has_protected_content,
-                message_effect_id=self.effect_id,
                 reply_parameters=reply_parameters,
                 reply_markup=self.reply_markup if reply_markup is object else reply_markup,
                 reply_to_message_id=reply_to_message_id,
@@ -4111,8 +3980,6 @@ class Message(Object, Update):
                 self._client.send_cached_media,
                 chat_id=chat_id,
                 disable_notification=disable_notification,
-                message_effect_id=self.effect_id,
-                show_caption_above_media=show_caption_above_media,
                 reply_parameters=reply_parameters,
                 message_thread_id=message_thread_id or self.message_thread_id,
                 business_connection_id=business_connection_id or self.business_connection_id,
@@ -4147,7 +4014,6 @@ class Message(Object, Update):
                     last_name=self.contact.last_name,
                     vcard=self.contact.vcard,
                     disable_notification=disable_notification,
-                    message_effect_id=self.effect_id,
                     reply_parameters=reply_parameters,
                     message_thread_id=message_thread_id or self.message_thread_id,
                     business_connection_id=business_connection_id or self.business_connection_id,
@@ -4162,7 +4028,6 @@ class Message(Object, Update):
                     latitude=self.location.latitude,
                     longitude=self.location.longitude,
                     disable_notification=disable_notification,
-                    message_effect_id=self.effect_id,
                     reply_parameters=reply_parameters,
                     message_thread_id=message_thread_id or self.message_thread_id,
                     business_connection_id=business_connection_id or self.business_connection_id,
@@ -4181,7 +4046,6 @@ class Message(Object, Update):
                     foursquare_id=self.venue.foursquare_id,
                     foursquare_type=self.venue.foursquare_type,
                     disable_notification=disable_notification,
-                    message_effect_id=self.effect_id,
                     reply_parameters=reply_parameters,
                     message_thread_id=message_thread_id or self.message_thread_id,
                     business_connection_id=business_connection_id or self.business_connection_id,
@@ -4211,7 +4075,6 @@ class Message(Object, Update):
                     close_date=self.poll.close_date,
                     disable_notification=disable_notification,
                     protect_content=protect_content or self.has_protected_content,
-                    message_effect_id=self.effect_id,
                     reply_parameters=reply_parameters,
                     message_thread_id=message_thread_id or self.message_thread_id,
                     business_connection_id=business_connection_id or self.business_connection_id,
@@ -4227,7 +4090,6 @@ class Message(Object, Update):
                     protect_content=protect_content or self.has_protected_content,
                     message_thread_id=message_thread_id or self.message_thread_id,
                     business_connection_id=business_connection_id or self.business_connection_id,
-                    message_effect_id=self.effect_id,
                     reply_parameters=reply_parameters,
                     reply_to_message_id=reply_to_message_id,
                     reply_markup=self.reply_markup if reply_markup is object else reply_markup

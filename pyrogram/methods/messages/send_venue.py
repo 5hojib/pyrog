@@ -42,7 +42,6 @@ class SendVenue:
         business_connection_id: str = None,
         schedule_date: datetime = None,
         protect_content: bool = None,
-        message_effect_id: int = None,
         reply_markup: Union[
             "types.InlineKeyboardMarkup",
             "types.ReplyKeyboardMarkup",
@@ -99,9 +98,6 @@ class SendVenue:
             protect_content (``bool``, *optional*):
                 Protects the contents of the sent message from forwarding and saving.
 
-            message_effect_id (``int`` ``64-bit``, *optional*):
-                Unique identifier of the message effect to be added to the message; for private chats only.
-
             reply_markup (:obj:`~pyrogram.types.InlineKeyboardMarkup` | :obj:`~pyrogram.types.ReplyKeyboardMarkup` | :obj:`~pyrogram.types.ReplyKeyboardRemove` | :obj:`~pyrogram.types.ForceReply`, *optional*):
                 Additional interface options. An object for an inline keyboard, custom reply keyboard,
                 instructions to remove reply keyboard or to force a reply from the user.
@@ -155,8 +151,7 @@ class SendVenue:
             random_id=self.rnd_id(),
             schedule_date=utils.datetime_to_timestamp(schedule_date),
             noforwards=protect_content,
-            reply_markup=await reply_markup.write(self) if reply_markup else None,
-            effect=message_effect_id
+            reply_markup=await reply_markup.write(self) if reply_markup else None
         )
         if business_connection_id:
             r = await self.invoke(
@@ -181,8 +176,7 @@ class SendVenue:
                     self, i.message,
                     {i.id: i for i in r.users},
                     {i.id: i for i in r.chats},
-                    is_scheduled=isinstance(i, raw.types.UpdateNewScheduledMessage),
-                    replies=self.fetch_replies
+                    is_scheduled=isinstance(i, raw.types.UpdateNewScheduledMessage)
                 )
             elif isinstance(
                 i,
@@ -196,6 +190,5 @@ class SendVenue:
                     {i.id: i for i in r.users},
                     {i.id: i for i in r.chats},
                     business_connection_id=getattr(i, "connection_id", business_connection_id),
-                    raw_reply_to_message=i.reply_to_message,
-                    replies=0
+                    raw_reply_to_message=i.reply_to_message
                 )

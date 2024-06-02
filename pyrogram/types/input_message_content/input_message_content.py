@@ -20,12 +20,9 @@ import pyrogram
 
 from ..object import Object
 
-"""
-    - :obj:`~pyrogram.types.InputLocationMessageContent`
+"""- :obj:`~pyrogram.types.InputLocationMessageContent`
     - :obj:`~pyrogram.types.InputVenueMessageContent`
-    - :obj:`~pyrogram.types.InputContactMessageContent`
-    - :obj:`~pyrogram.types.InputInvoiceMessageContent`
-"""
+    - :obj:`~pyrogram.types.InputContactMessageContent`"""
 
 
 class InputMessageContent(Object):

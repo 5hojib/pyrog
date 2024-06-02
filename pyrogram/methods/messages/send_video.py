@@ -39,7 +39,6 @@ class SendVideo:
         caption: str = "",
         parse_mode: Optional["enums.ParseMode"] = None,
         caption_entities: List["types.MessageEntity"] = None,
-        show_caption_above_media: bool = None,
         duration: int = 0,
         width: int = 0,
         height: int = 0,
@@ -50,7 +49,6 @@ class SendVideo:
         protect_content: bool = None,
         message_thread_id: int = None,
         business_connection_id: str = None,
-        message_effect_id: int = None,
         reply_parameters: "types.ReplyParameters" = None,
         reply_markup: Union[
             "types.InlineKeyboardMarkup",
@@ -93,9 +91,6 @@ class SendVideo:
             caption_entities (List of :obj:`~pyrogram.types.MessageEntity`):
                 List of special entities that appear in the caption, which can be specified instead of *parse_mode*.
 
-            show_caption_above_media (``bool``, *optional*):
-                Pass True, if the caption must be shown above the message media.
-
             duration (``int``, *optional*):
                 Duration of sent video in seconds.
 
@@ -130,9 +125,6 @@ class SendVideo:
 
             business_connection_id (``str``, *optional*):
                 Unique identifier of the business connection on behalf of which the message will be sent.
-
-            message_effect_id (``int`` ``64-bit``, *optional*):
-                Unique identifier of the message effect to be added to the message; for private chats only.
 
             reply_parameters (:obj:`~pyrogram.types.ReplyParameters`, *optional*):
                 Description of the message to reply to
@@ -288,8 +280,6 @@ class SendVideo:
                 schedule_date=utils.datetime_to_timestamp(schedule_date),
                 noforwards=protect_content,
                 reply_markup=await reply_markup.write(self) if reply_markup else None,
-                effect=message_effect_id,
-                invert_media=show_caption_above_media,
                 **await utils.parse_text_entities(self, caption, parse_mode, caption_entities)
             )
             session = None
@@ -331,8 +321,7 @@ class SendVideo:
                                 self, i.message,
                                 {i.id: i for i in r.users},
                                 {i.id: i for i in r.chats},
-                                is_scheduled=isinstance(i, raw.types.UpdateNewScheduledMessage),
-                                replies=self.fetch_replies
+                                is_scheduled=isinstance(i, raw.types.UpdateNewScheduledMessage)
                             )
                         elif isinstance(
                             i,
@@ -346,8 +335,7 @@ class SendVideo:
                                 {i.id: i for i in r.users},
                                 {i.id: i for i in r.chats},
                                 business_connection_id=getattr(i, "connection_id", business_connection_id),
-                                raw_reply_to_message=i.reply_to_message,
-                                replies=0
+                                raw_reply_to_message=i.reply_to_message
                             )
         except StopTransmission:
             return None

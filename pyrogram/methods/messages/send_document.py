@@ -46,7 +46,6 @@ class SendDocument:
         reply_parameters: "types.ReplyParameters" = None,
         message_thread_id: int = None,
         business_connection_id: str = None,
-        message_effect_id: int = None,
         schedule_date: datetime = None,
         protect_content: bool = None,
         reply_markup: Union[
@@ -56,7 +55,6 @@ class SendDocument:
             "types.ForceReply"
         ] = None,
         reply_to_message_id: int = None,
-        force_document: bool = None,
         progress: Callable = None,
         progress_args: tuple = ()
     ) -> Optional["types.Message"]:
@@ -115,9 +113,6 @@ class SendDocument:
 
             business_connection_id (``str``, *optional*):
                 Unique identifier of the business connection on behalf of which the message will be sent.
-
-            message_effect_id (``int`` ``64-bit``, *optional*):
-                Unique identifier of the message effect to be added to the message; for private chats only.
 
             schedule_date (:py:obj:`~datetime.datetime`, *optional*):
                 Date when the message will be automatically sent.
@@ -184,19 +179,6 @@ class SendDocument:
             )
             reply_parameters = types.ReplyParameters(message_id=reply_to_message_id)
 
-        if force_document and disable_content_type_detection:
-            raise ValueError(
-                "Parameters `force_document` and `disable_content_type_detection` "
-                "are mutually exclusive."
-            )
-
-        if force_document is not None:
-            log.warning(
-                "This property is deprecated. "
-                "Please use disable_content_type_detection instead"
-            )
-            disable_content_type_detection = force_document
-
         file = None
 
         try:
@@ -246,7 +228,6 @@ class SendDocument:
                 schedule_date=utils.datetime_to_timestamp(schedule_date),
                 noforwards=protect_content,
                 reply_markup=await reply_markup.write(self) if reply_markup else None,
-                effect=message_effect_id,
                 **await utils.parse_text_entities(self, caption, parse_mode, caption_entities)
             )
             session = None
@@ -288,8 +269,7 @@ class SendDocument:
                                 self, i.message,
                                 {i.id: i for i in r.users},
                                 {i.id: i for i in r.chats},
-                                is_scheduled=isinstance(i, raw.types.UpdateNewScheduledMessage),
-                                replies=self.fetch_replies
+                                is_scheduled=isinstance(i, raw.types.UpdateNewScheduledMessage)
                             )
                         elif isinstance(
                             i,
@@ -303,8 +283,7 @@ class SendDocument:
                                 {i.id: i for i in r.users},
                                 {i.id: i for i in r.chats},
                                 business_connection_id=getattr(i, "connection_id", business_connection_id),
-                                raw_reply_to_message=i.reply_to_message,
-                                replies=0
+                                raw_reply_to_message=i.reply_to_message
                             )
 
         except StopTransmission:

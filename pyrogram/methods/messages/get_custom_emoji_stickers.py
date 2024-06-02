@@ -19,7 +19,8 @@
 from typing import List
 
 import pyrogram
-from pyrogram import raw, types
+from pyrogram import raw
+from pyrogram import types
 
 
 class GetCustomEmojiStickers:
@@ -51,4 +52,4 @@ class GetCustomEmojiStickers:
             sticker = await types.Sticker._parse(self, item, attributes)
             stickers.append(sticker)
 
-        return types.List(stickers)
+        return pyrogram.types.List(stickers)

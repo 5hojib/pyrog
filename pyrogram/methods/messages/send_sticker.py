@@ -44,7 +44,6 @@ class SendSticker:
         protect_content: bool = None,
         message_thread_id: int = None,
         business_connection_id: str = None,
-        message_effect_id: int = None,
         reply_parameters: "types.ReplyParameters" = None,
         reply_markup: Union[
             "types.InlineKeyboardMarkup",
@@ -99,9 +98,6 @@ class SendSticker:
 
             business_connection_id (``str``, *optional*):
                 Unique identifier of the business connection on behalf of which the message will be sent.
-
-            message_effect_id (``int`` ``64-bit``, *optional*):
-                Unique identifier of the message effect to be added to the message; for private chats only.
 
             reply_parameters (:obj:`~pyrogram.types.ReplyParameters`, *optional*):
                 Description of the message to reply to
@@ -212,7 +208,6 @@ class SendSticker:
                 schedule_date=utils.datetime_to_timestamp(schedule_date),
 
 
-                effect=message_effect_id,
                 **await utils.parse_text_entities(self, caption, parse_mode, caption_entities)
             )
             session = None
@@ -254,8 +249,7 @@ class SendSticker:
                                 self, i.message,
                                 {i.id: i for i in r.users},
                                 {i.id: i for i in r.chats},
-                                is_scheduled=isinstance(i, raw.types.UpdateNewScheduledMessage),
-                                replies=self.fetch_replies
+                                is_scheduled=isinstance(i, raw.types.UpdateNewScheduledMessage)
                             )
                         elif isinstance(
                             i,
@@ -269,8 +263,7 @@ class SendSticker:
                                 {i.id: i for i in r.users},
                                 {i.id: i for i in r.chats},
                                 business_connection_id=getattr(i, "connection_id", business_connection_id),
-                                raw_reply_to_message=i.reply_to_message,
-                                replies=0
+                                raw_reply_to_message=i.reply_to_message
                             )
         except StopTransmission:
             return None

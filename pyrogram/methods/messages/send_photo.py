@@ -39,7 +39,6 @@ class SendPhoto:
         caption: str = "",
         parse_mode: Optional["enums.ParseMode"] = None,
         caption_entities: List["types.MessageEntity"] = None,
-        show_caption_above_media: bool = None,
         has_spoiler: bool = None,
         ttl_seconds: int = None,
         disable_notification: bool = None,
@@ -49,7 +48,6 @@ class SendPhoto:
         schedule_date: datetime = None,
         protect_content: bool = None,
         view_once: bool = None,
-        message_effect_id: int = None,
         reply_markup: Union[
             "types.InlineKeyboardMarkup",
             "types.ReplyKeyboardMarkup",
@@ -87,9 +85,6 @@ class SendPhoto:
             caption_entities (List of :obj:`~pyrogram.types.MessageEntity`):
                 List of special entities that appear in the caption, which can be specified instead of *parse_mode*.
 
-            show_caption_above_media (``bool``, *optional*):
-                Pass True, if the caption must be shown above the message media.
-
             has_spoiler (``bool``, *optional*):
                 Pass True if the photo needs to be covered with a spoiler animation.
 
@@ -119,9 +114,6 @@ class SendPhoto:
 
             view_once (``bool``, *optional*):
                 Pass True if the photo should be viewable only once.
-
-            message_effect_id (``int`` ``64-bit``, *optional*):
-                Unique identifier of the message effect to be added to the message; for private chats only.
 
             reply_markup (:obj:`~pyrogram.types.InlineKeyboardMarkup` | :obj:`~pyrogram.types.ReplyKeyboardMarkup` | :obj:`~pyrogram.types.ReplyKeyboardRemove` | :obj:`~pyrogram.types.ForceReply`, *optional*):
                 Additional interface options. An object for an inline keyboard, custom reply keyboard,
@@ -229,8 +221,6 @@ class SendPhoto:
                 schedule_date=utils.datetime_to_timestamp(schedule_date),
                 noforwards=protect_content,
                 reply_markup=await reply_markup.write(self) if reply_markup else None,
-                effect=message_effect_id,
-                invert_media=show_caption_above_media,
                 **await utils.parse_text_entities(self, caption, parse_mode, caption_entities)
             )
             session = None
@@ -272,8 +262,7 @@ class SendPhoto:
                                 self, i.message,
                                 {i.id: i for i in r.users},
                                 {i.id: i for i in r.chats},
-                                is_scheduled=isinstance(i, raw.types.UpdateNewScheduledMessage),
-                                replies=self.fetch_replies
+                                is_scheduled=isinstance(i, raw.types.UpdateNewScheduledMessage)
                             )
                         elif isinstance(
                             i,
@@ -287,8 +276,7 @@ class SendPhoto:
                                 {i.id: i for i in r.users},
                                 {i.id: i for i in r.chats},
                                 business_connection_id=getattr(i, "connection_id", business_connection_id),
-                                raw_reply_to_message=i.reply_to_message,
-                                replies=0
+                                raw_reply_to_message=i.reply_to_message
                             )
         except pyrogram.StopTransmission:
             return None

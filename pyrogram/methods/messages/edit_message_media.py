@@ -287,7 +287,6 @@ class EditMessageMedia:
                 reply_markup=await reply_markup.write(self) if reply_markup else None,
                 message=message,
                 entities=entities,
-                # TODO
                 schedule_date=utils.datetime_to_timestamp(schedule_date)
             )
         )
@@ -306,5 +305,5 @@ class EditMessageMedia:
                     {i.id: i for i in r.users},
                     {i.id: i for i in r.chats},
                     is_scheduled=isinstance(i, raw.types.UpdateNewScheduledMessage),
-                    replies=self.fetch_replies
+                    replies=0
                 )

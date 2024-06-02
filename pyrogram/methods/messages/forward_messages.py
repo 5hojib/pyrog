@@ -128,8 +128,7 @@ class ForwardMessages:
                         i.message,
                         users,
                         chats,
-                        is_scheduled=isinstance(i, raw.types.UpdateNewScheduledMessage),
-                        replies=self.fetch_replies
+                        is_scheduled=isinstance(i, raw.types.UpdateNewScheduledMessage)
                     )
                 )
 

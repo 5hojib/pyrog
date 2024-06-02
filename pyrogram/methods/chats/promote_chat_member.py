@@ -98,8 +98,7 @@ class PromoteChatMember:
                 return await types.Message._parse(
                     self, i.message,
                     {i.id: i for i in r.users},
-                    {i.id: i for i in r.chats},
-                    replies=self.fetch_replies
+                    {i.id: i for i in r.chats}
                 )
         else:
             return True

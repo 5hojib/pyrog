@@ -14,14 +14,7 @@ If you found any issue or have any suggestions, feel free to make `an issue <htt
 | Scheme layer used: 181 |
 +------------------------+
 
-- Added the ``fetch_replies`` parameter to :obj:`~pyrogram.Client`.
-- Added the :meth:`~pyrogram.Client.get_message_effects`.
-- Added the parameter ``message_effect_id`` to the methods :meth:`~pyrogram.Client.send_message`, :meth:`~pyrogram.Client.send_photo`, :meth:`~pyrogram.Client.send_video`, :meth:`~pyrogram.Client.send_animation`, :meth:`~pyrogram.Client.send_audio`, :meth:`~pyrogram.Client.send_document`, :meth:`~pyrogram.Client.send_sticker`, :meth:`~pyrogram.Client.send_video_note`, :meth:`~pyrogram.Client.send_voice`, :meth:`~pyrogram.Client.send_location`, :meth:`~pyrogram.Client.send_venue`, :meth:`~pyrogram.Client.send_contact`, :meth:`~pyrogram.Client.send_poll`, :meth:`~pyrogram.Client.send_dice`, :meth:`~pyrogram.Client.send_game`, and :meth:`~pyrogram.Client.send_media_group`, and the corresponding ``reply_*`` methods in the class :obj:`~pyrogram.types.Message`.
-- Added the field ``effect_id`` to the class :obj:`~pyrogram.types.Message`.
-- Added the field ``show_caption_above_media`` to the classes :obj:`~pyrogram.types.Message`, :obj:`~pyrogram.types.InputMediaAnimation`, :obj:`~pyrogram.types.InputMediaPhoto`, :obj:`~pyrogram.types.InputMediaVideo`, :obj:`~pyrogram.types.InlineQueryResultAnimation`, :obj:`~pyrogram.types.InlineQueryResultCachedAnimation`,  :obj:`~pyrogram.types.InlineQueryResultPhoto`, :obj:`~pyrogram.types.InlineQueryResultCachedPhoto`, :obj:`~pyrogram.types.InlineQueryResultVideo`, :obj:`~pyrogram.types.InlineQueryResultCachedVideo`, :meth:`~pyrogram.Client.send_cached_media`, :meth:`~pyrogram.Client.send_animation`, :meth:`~pyrogram.Client.send_photo`, :meth:`~pyrogram.Client.send_video`, :meth:`~pyrogram.Client.copy_message` and :meth:`~pyrogram.Client.edit_message_caption`, and the corresponding ``reply_*`` methods.
-- Added support for :obj:`~pyrogram.enums.MessageEntityType.EXPANDABLE_BLOCKQUOTE` entities in received messages.
-- Added support for :obj:`~pyrogram.enums.MessageEntityType.EXPANDABLE_BLOCKQUOTE` entity parsing in :obj:`~pyrogram.enums.ParseMode.HTML` parse mode.
-- Allowed to explicitly specify :obj:`~pyrogram.enums.MessageEntityType.EXPANDABLE_BLOCKQUOTE` entities in formatted texts.
+
 - `View new and changed raw API methods <https://telegramplayground.github.io/TG-APIs/TL/diff/?from=178&to=181>`__.
 
 +------------------------+
@@ -146,11 +139,17 @@ If you found any issue or have any suggestions, feel free to make `an issue <htt
 |  PmOItrOAe  |
 +-------------+
 
-- Renamed ``placeholder`` to ``input_field_placeholder`` in :obj:`~pyrogram.types.ForceReply` and :obj:`~pyrogram.types.ReplyKeyboardMarkup`.
+- Renamed ``placeholder`` to ``input_field_placeholder`` in :obj:`~pyrogram.types.ForceReply`.
 - Add ``link`` parameter in :meth:`~pyrogram.Client.get_messages`
 - `fix(filters): add type hints in filters.py <https://github.com/TelegramPlayGround/pyrogram/pull/8>`_
 - Documentation Builder Fixes
 - `faster-pyrogram <https://github.com/cavallium/faster-pyrogram>`_ is not polished or documented for anyone else's use. We don't have the capacity to support `faster-pyrogram <https://github.com/TelegramPlayGround/pyrogram/pull/6>`_ as an independent open-source project, nor any desire for it to become an alternative to Pyrogram. Our goal in making this code available is a unified faster Pyrogram. `... <https://github.com/cavallium/faster-pyrogram/blob/b781909/README.md#L28>`_
+    - Lock-free and asynchronous implementation of the sqlite session.
+    - The possibility of turning off journaling and vacuum when starting a session.
+    - Improved implementation of rle_encode.
+    - Implementation of _parse_channel_chat without getattr, in some scenarios.
+    - Cache of FileId and UniqueFileId instances and of their string-coded versions.
+    - Use of tcp abridged instead of tcp obfuscated as the default protocol.
 
 +-----------------------------+
 |   Leaked Scheme Layers (2)  |
@@ -170,6 +169,7 @@ If you found any issue or have any suggestions, feel free to make `an issue <htt
 - `#1345 <https://github.com/pyrogram/pyrogram/issues/1345>`_
 - `Add undocumented things <https://github.com/TelegramPlayGround/pyrogram/commit/8a72939d98f343eae1e07981f95769efaa741e4e>`_
 - `Add missing enums.SentCodeType <https://github.com/KurimuzonAkuma/pyrogram/commit/40ddcbca6062f13958f4ca2c9852f8d1c4d62f3c>`_
+- Renamed ``placeholder`` to ``input_field_placeholder`` in :obj:`~pyrogram.types.ReplyKeyboardMarkup`
 - `#693 <https://github.com/KurimuzonAkuma/pyrogram/pull/693>`_
 - Revert `e678c05 <https://github.com/TelegramPlayGround/pyrogram/commit/e678c054d4aa0bbbb7d583eb426ca8753a4c9354>`_ and stole squashed unauthored changes from `bcd18d5 <https://github.com/Masterolic/pyrogram/commit/bcd18d5e04f18f949389a03f309816d6f0f9eabe>`_
 
@@ -215,6 +215,7 @@ If you found any issue or have any suggestions, feel free to make `an issue <htt
 - Stole documentation from `PyrogramMod <https://github.com/PyrogramMod/PyrogramMod>`_.
 - Renamed ``send_reaction`` to :meth:`~pyrogram.Client.set_reaction`.
 - Added support for :meth:`~pyrogram.Client.send_photo`, :meth:`~pyrogram.Client.send_video`, :meth:`~pyrogram.Client.send_animation`, :meth:`~pyrogram.Client.send_voice` messages that could be played once.
+- Added ``_raw`` to the :obj:`~pyrogram.types.Chat` object.
 - Added the field ``via_chat_folder_invite_link`` to the class :obj:`~pyrogram.types.ChatMemberUpdated`.
 - **BOTS ONLY**: Added updates about a reaction change on a message with non-anonymous reactions, represented by the class :obj:`~pyrogram.handlers.MessageReactionUpdatedHandler` and the field ``message_reaction`` in the class Update.
 - **BOTS ONLY**: Added updates about reaction changes on a message with anonymous reactions, represented by the class :obj:`~pyrogram.handlers.MessageReactionCountUpdatedHandler` and the field ``message_reaction_count`` in the class Update.
@@ -232,8 +233,9 @@ If you found any issue or have any suggestions, feel free to make `an issue <htt
 - Added ``nosound_video`` parameter to :obj:`~pyrogram.types.InputMediaVideo`.
 - Added ``has_spoiler`` parameter to :meth:`~pyrogram.Client.copy_message`.
 - Improved :meth:`~pyrogram.Client.get_chat_history`: add ``min_id`` and ``max_id`` params.
+- Improved ``set_reaction`` for Telegram Premium Users.
 - `Prevent connection to dc every time in get_file <https://github.com/TelegramPlayGround/pyrogram/commit/f2581fd7ab84ada7685645a6f80475fbea5e743a>`_
-- Added ``_raw`` to the :obj:`~pyrogram.types.Chat`, :obj:`~pyrogram.types.Dialog`, :obj:`~pyrogram.types.Message` and :obj:`~pyrogram.types.User` objects.
+- Added ``_raw`` to the :obj:`~pyrogram.types.Chat`, :obj:`~pyrogram.types.Dialog`, and :obj:`~pyrogram.types.User` objects.
 - Fix downloading media to ``WORKDIR`` when ``WORKDIR`` was not specified.
 - `Update multiple fragment chat usernames <https://github.com/TelegramPlayGround/pyrogram/commit/39aea4831ee18e5263bf6755306f0ca49f075bda>`_
 - `Custom Storage Engines <https://github.com/TelegramPlayGround/pyrogram/commit/cd937fff623759dcac8f437a8c524684868590a4>`_
@@ -244,6 +246,12 @@ If you found any issue or have any suggestions, feel free to make `an issue <htt
 +------------------------+
 
 - Fixed the TL flags being Python reserved keywords: ``from`` and ``self``.
+
++------------------------+
+| Scheme layer used: 164 |
++------------------------+
+
+- Added ``_raw`` to the :obj:`~pyrogram.types.Message` object.
 
 +------------------------+
 | Scheme layer used: 161 |

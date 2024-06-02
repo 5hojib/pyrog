@@ -39,7 +39,6 @@ class SendMessage:
         protect_content: bool = None,
         message_thread_id: int = None,
         business_connection_id: str = None,
-        message_effect_id: int = None,
         reply_parameters: "types.ReplyParameters" = None,
         reply_markup: Union[
             "types.InlineKeyboardMarkup",
@@ -86,9 +85,6 @@ class SendMessage:
 
             business_connection_id (``str``, *optional*):
                 Unique identifier of the business connection on behalf of which the message will be sent.
-
-            message_effect_id (``int`` ``64-bit``, *optional*):
-                Unique identifier of the message effect to be added to the message; for private chats only.
 
             reply_parameters (:obj:`~pyrogram.types.ReplyParameters`, *optional*):
                 Description of the message to reply to
@@ -208,8 +204,7 @@ class SendMessage:
                     ),
                     invert_media=link_preview_options.show_above_text,
                     entities=entities,
-                    noforwards=protect_content,
-                    effect=message_effect_id
+                    noforwards=protect_content
                 )
                 if business_connection_id:
                     r = await session.invoke(
@@ -255,7 +250,6 @@ class SendMessage:
                     message=message,
                     entities=entities,
                     # TODO
-                    effect=message_effect_id
                 )
                 if business_connection_id:
                     r = await session.invoke(
@@ -286,7 +280,6 @@ class SendMessage:
                 message=message,
                 entities=entities,
                 # TODO
-                effect=message_effect_id
             )
             if business_connection_id:
                 r = await session.invoke(
@@ -343,7 +336,7 @@ class SendMessage:
                     {i.id: i for i in r.users},
                     {i.id: i for i in r.chats},
                     is_scheduled=isinstance(i, raw.types.UpdateNewScheduledMessage),
-                    replies=self.fetch_replies
+                    replies=0
                 )
             elif isinstance(
                 i,
@@ -357,6 +350,5 @@ class SendMessage:
                     {i.id: i for i in r.users},
                     {i.id: i for i in r.chats},
                     business_connection_id=getattr(i, "connection_id", business_connection_id),
-                    raw_reply_to_message=i.reply_to_message,
-                    replies=0
+                    raw_reply_to_message=i.reply_to_message
                 )

@@ -39,7 +39,6 @@ class SendAnimation:
         caption: str = "",
         parse_mode: Optional["enums.ParseMode"] = None,
         caption_entities: List["types.MessageEntity"] = None,
-        show_caption_above_media: bool = None,
         unsave: bool = False,
         has_spoiler: bool = None,
         duration: int = 0,
@@ -51,7 +50,6 @@ class SendAnimation:
         reply_parameters: "types.ReplyParameters" = None,
         message_thread_id: int = None,
         business_connection_id: str = None,
-        message_effect_id: int = None,
         schedule_date: datetime = None,
         protect_content: bool = None,
         ttl_seconds: int = None,
@@ -92,9 +90,6 @@ class SendAnimation:
             caption_entities (List of :obj:`~pyrogram.types.MessageEntity`):
                 List of special entities that appear in the caption, which can be specified instead of *parse_mode*.
 
-            show_caption_above_media (``bool``, *optional*):
-                Pass True, if the caption must be shown above the message media.
-
             unsave (``bool``, *optional*):
                 By default, the server will save into your own collection any new animation you send.
                 Pass True to automatically unsave the sent animation. Defaults to False.
@@ -133,9 +128,6 @@ class SendAnimation:
 
             business_connection_id (``str``, *optional*):
                 Unique identifier of the business connection on behalf of which the message will be sent.
-
-            message_effect_id (``int`` ``64-bit``, *optional*):
-                Unique identifier of the message effect to be added to the message; for private chats only.
 
             schedule_date (:py:obj:`~datetime.datetime`, *optional*):
                 Date when the message will be automatically sent.
@@ -286,8 +278,6 @@ class SendAnimation:
                 schedule_date=utils.datetime_to_timestamp(schedule_date),
                 noforwards=protect_content,
                 reply_markup=await reply_markup.write(self) if reply_markup else None,
-                effect=message_effect_id,
-                invert_media=show_caption_above_media,
                 **await utils.parse_text_entities(self, caption, parse_mode, caption_entities)
             )
             session = None
@@ -330,8 +320,7 @@ class SendAnimation:
                                 i.message,
                                 {i.id: i for i in r.users},
                                 {i.id: i for i in r.chats},
-                                is_scheduled=isinstance(i, raw.types.UpdateNewScheduledMessage),
-                                replies=self.fetch_replies
+                                is_scheduled=isinstance(i, raw.types.UpdateNewScheduledMessage)
                             )
 
                             if unsave:
@@ -360,8 +349,7 @@ class SendAnimation:
                                 {i.id: i for i in r.users},
                                 {i.id: i for i in r.chats},
                                 business_connection_id=getattr(i, "connection_id", business_connection_id),
-                                raw_reply_to_message=i.reply_to_message,
-                                replies=0
+                                raw_reply_to_message=i.reply_to_message
                             )
 
 

@@ -109,7 +109,6 @@ class CopyMediaGroup:
 
         media_group = await self.get_media_group(from_chat_id, message_id)
         multi_media = []
-        show_caption_above_media = []
 
         for i, message in enumerate(media_group):
             if message.photo:
@@ -137,7 +136,6 @@ class CopyMediaGroup:
                     )
                 )
             )
-            show_caption_above_media.append(message.show_caption_above_media)
 
         reply_to = await utils._get_reply_message_parameters(
             self,
@@ -151,8 +149,7 @@ class CopyMediaGroup:
                 multi_media=multi_media,
                 silent=disable_notification or None,
                 reply_to=reply_to,
-                schedule_date=utils.datetime_to_timestamp(schedule_date),
-                invert_media=any(show_caption_above_media)
+                schedule_date=utils.datetime_to_timestamp(schedule_date)
             ),
             sleep_threshold=60
         )
